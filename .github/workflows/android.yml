@@ -38,6 +38,7 @@ jobs:
           arch: x86_64
           script: |
             ./gradlew connectedDebugAndroidTest
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -n com.example.poke_android/.MainActivity
             sleep 30
             mkdir -p screenshots

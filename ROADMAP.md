@@ -20,7 +20,7 @@
 
 - [x] Compilación debug y pruebas unitarias locales.
 - [x] Análisis Android Lint sin errores.
-- [ ] Pruebas instrumentadas de interfaz y sesión cifrada en emulador.
+- [x] Cuatro pruebas instrumentadas de navegación, interfaz y sesión cifrada en emulador Android 15 (API 35), ejecutadas en GitHub Actions.
 - [ ] Recorrido visual de la app contra Render.
 - [x] Publicar el repositorio como público en GitHub: [alex0593/poke_android](https://github.com/alex0593/poke_android).
 - [ ] Verificar los primeros resultados de CI tras publicar.
