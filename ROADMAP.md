@@ -22,7 +22,7 @@
 - [x] Análisis Android Lint sin errores.
 - [ ] Pruebas instrumentadas de interfaz y sesión cifrada en emulador.
 - [ ] Recorrido visual de la app contra Render.
-- [ ] Publicar el repositorio como público en GitHub.
+- [x] Publicar el repositorio como público en GitHub: [alex0593/poke_android](https://github.com/alex0593/poke_android).
 - [ ] Verificar los primeros resultados de CI tras publicar.
 - [ ] Probar login/registro, favoritos y avance regional con una cuenta de pruebas dedicada. Las pruebas locales automatizadas no modifican producción.
 
