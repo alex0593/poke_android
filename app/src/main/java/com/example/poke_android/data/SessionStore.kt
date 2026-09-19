@@ -56,18 +56,36 @@ class SessionStore(private val context: Context) : Session {
                 .generateKey()
     }
 
+    private companion object {
+        const val IV_LENGTH_BYTES = 12
+        const val TAG_LENGTH_BITS = 128
+    }
+
     override suspend fun restore() {
         val prefs = context.sessionData.data.first()
         val encrypted = prefs[tokenKey] ?: return
         try {
             val bytes = Base64.decode(encrypted, Base64.NO_WRAP)
+            // Un payload truncado o corrupto no puede contener IV + texto cifrado.
+            if (bytes.size <= IV_LENGTH_BYTES) {
+                clear()
+                return
+            }
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(0, 12)))
-            token = String(cipher.doFinal(bytes.copyOfRange(12, bytes.size)), Charsets.UTF_8)
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                key(),
+                GCMParameterSpec(TAG_LENGTH_BITS, bytes.copyOfRange(0, IV_LENGTH_BYTES)),
+            )
+            token =
+                String(
+                    cipher.doFinal(bytes.copyOfRange(IV_LENGTH_BYTES, bytes.size)),
+                    Charsets.UTF_8,
+                )
             username = prefs[userKey]
-        } catch (_: java.security.GeneralSecurityException) {
-            clear()
-        } catch (_: IllegalArgumentException) {
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            // Cualquier fallo de descifrado o decodificación invalida la sesión en vez de romper el arranque.
             clear()
         }
     }
