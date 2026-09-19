@@ -2,7 +2,7 @@
 
 Aplicación nativa en Kotlin y Jetpack Compose conectada a **https://pokedex-backend-kor1.onrender.com/**.
 
-Estado de implementación y próximas iteraciones: [ROADMAP.md](ROADMAP.md).
+Estado de implementación y próximas iteraciones: [ROADMAP.md](ROADMAP.md). Auditoría de puntos de mejora: [AUDIT.md](AUDIT.md).
 
 ## Funciones
 
@@ -38,7 +38,7 @@ Las funciones de red son suspendibles y se ejecutan con corrutinas ligadas al Vi
 
 El JWT se cifra con una clave AES-GCM de Android Keystore antes de persistirlo en DataStore. La app no guarda contraseñas ni incluye credenciales. Las copias de seguridad están desactivadas. OkHttp agrega el token y solo registra datos básicos de solicitudes en debug, sin cuerpos ni encabezados de autenticación. Las escrituras no se reintentan automáticamente; las respuestas regionales conservan su UUID al reintentar manualmente.
 
-Render puede tardar en responder al arrancar; el cliente permite hasta 100 segundos por llamada. Los textos descriptivos de Pokémon y catálogos se muestran en el idioma que devuelve el backend (actualmente inglés); los controles están en español.
+Render puede tardar unos segundos en responder al arrancar; la app muestra la interfaz mientras carga y permite reintentar si una llamada supera 35 segundos. Los textos descriptivos de Pokémon y catálogos se muestran en el idioma que devuelve el backend (actualmente inglés); los controles están en español.
 
 Las pruebas de contrato usan MockWebServer y no crean usuarios ni modifican producción. Las pruebas instrumentadas cubren interacción de fichas y persistencia cifrada de sesión.
 
