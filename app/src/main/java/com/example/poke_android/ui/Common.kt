@@ -27,7 +27,7 @@ fun typeColor(type: String) =
         else -> Color(0xFFB6B9BB)
     }
 
-fun typeLabel(type: String) =
+private val TYPE_LABELS_ES =
     mapOf(
         "fire" to "Fuego",
         "water" to "Agua",
@@ -47,7 +47,9 @@ fun typeLabel(type: String) =
         "bug" to "Bicho",
         "poison" to "Veneno",
         "rock" to "Roca",
-    )[type.lowercase()] ?: type
+    )
+
+fun typeLabel(type: String) = TYPE_LABELS_ES[type.lowercase()] ?: type
 
 @Composable
 fun Heading(title: String, subtitle: String) {

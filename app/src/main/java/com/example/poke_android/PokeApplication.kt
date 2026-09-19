@@ -7,7 +7,7 @@ import coil.decode.SvgDecoder
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.example.poke_android.data.*
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 
 class PokeApplication : Application(), ImageLoaderFactory {
     lateinit var session: SessionStore
@@ -16,7 +16,8 @@ class PokeApplication : Application(), ImageLoaderFactory {
     lateinit var repository: Repository
         private set
 
-    val unauthorized = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    // Conflated: un 401 emitido antes de que el ViewModel se suscriba se conserva y se entrega al primer colector.
+    val unauthorized = Channel<Unit>(Channel.CONFLATED)
 
     override fun newImageLoader(): ImageLoader =
         ImageLoader.Builder(this)
@@ -39,7 +40,7 @@ class PokeApplication : Application(), ImageLoaderFactory {
                 createApi(
                     BuildConfig.API_URL,
                     { session.token },
-                    { unauthorized.tryEmit(Unit) },
+                    { unauthorized.trySend(Unit) },
                     BuildConfig.DEBUG,
                 )
             )

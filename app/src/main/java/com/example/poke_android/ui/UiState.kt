@@ -19,6 +19,7 @@ data class UiState(
     val evolution: EvolutionChain? = null,
     val randomPokemon: Entry? = null,
     val worldRegions: List<Entry> = emptyList(),
+    val worldRegionsLoaded: Boolean = false,
     val worldRegion: RegionDetails? = null,
     val favorites: List<Favorite> = emptyList(),
     val profile: Profile? = null,

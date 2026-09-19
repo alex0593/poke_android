@@ -23,7 +23,12 @@ fun RegionExplorerScreen(s: UiState, refresh: () -> Unit, open: (String) -> Unit
     ) {
         item { Heading("Regiones Pokémon", "Explora el mapa y sus localidades") }
         item { OutlinedButton(onClick = refresh, enabled = !s.busy) { Text("Actualizar") } }
-        if (s.worldRegions.isEmpty() && !s.busy) item { Text("No se pudieron cargar las regiones.") }
+        if (s.busy && s.worldRegions.isEmpty())
+            item { Loading() }
+        else if (!s.worldRegionsLoaded)
+            item { Text("No se pudieron cargar las regiones. Vuelve a intentar.") }
+        else if (s.worldRegions.isEmpty())
+            item { Text("No hay regiones disponibles.") }
         items(s.worldRegions, key = { it.key }) { region ->
             Card(onClick = { open(region.key) }, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -38,7 +43,7 @@ fun RegionExplorerScreen(s: UiState, refresh: () -> Unit, open: (String) -> Unit
 @Composable
 fun RegionDetailScreen(s: UiState, name: String, refresh: (String) -> Unit) {
     val region = s.worldRegion
-    if (region == null || region.name != name) {
+    if (region == null || !region.name.equals(name, ignoreCase = true)) {
         if (s.busy) Loading()
         else OutlinedButton(onClick = { refresh(name) }, modifier = Modifier.padding(20.dp)) {
             Text("Reintentar")

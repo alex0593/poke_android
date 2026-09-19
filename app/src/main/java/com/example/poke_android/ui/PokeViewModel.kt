@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.poke_android.data.*
 import java.util.UUID
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
@@ -12,7 +13,7 @@ import kotlinx.coroutines.sync.withLock
 class PokeViewModel(
     private val repo: Repository,
     private val session: Session,
-    unauthorized: Flow<Unit>,
+    unauthorized: ReceiveChannel<Unit>,
 ) : ViewModel() {
     private val api = repo.api
     private val mutable = MutableStateFlow(UiState())
@@ -26,7 +27,10 @@ class PokeViewModel(
 
     init {
         viewModelScope.launch {
-            unauthorized.collect {
+            // Bucle de recepción sobre el canal confluado: un 401 emitido antes de
+            // suscribirse se entrega igualmente al arrancar; la cancelación del scope cierra el bucle.
+            while (true) {
+                unauthorized.receive()
                 logout()
                 mutable.update { it.copy(error = "La sesión caducó. Inicia sesión de nuevo.") }
             }
@@ -182,7 +186,7 @@ class PokeViewModel(
     fun loadWorldRegions() {
         action {
             val page = api.regions()
-            mutable.update { it.copy(worldRegions = page.results) }
+            mutable.update { it.copy(worldRegions = page.results, worldRegionsLoaded = true) }
         }
     }
 
@@ -359,7 +363,7 @@ class PokeViewModel(
                                     if (result.attempt_finished) result.attempt_correct_count
                                     else result.stage_progress.correct_count,
                                 stageTotal =
-                                    if (result.attempt_finished) 10
+                                    if (result.attempt_finished) GameRules.STAGE_QUESTIONS
                                     else result.stage_progress.total_count,
                             )
                         }

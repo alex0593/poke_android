@@ -86,6 +86,12 @@ data class StageAnswer(
     val answer_id: String,
 )
 
+/** Reglas de etapa que aplica el backend; compartidas por ViewModel y UI para no duplicarlas. */
+object GameRules {
+    const val STAGE_QUESTIONS = 10
+    const val STAGE_GOAL = 7
+}
+
 @Serializable
 data class Stage(
     val region_name: String,
@@ -156,6 +162,7 @@ enum class Catalog(val path: String, val entity: String, val title: String) {
     BERRIES("berries", "berry", "Bayas");
 
     companion object {
-        fun forEntity(entity: String) = entries.first { it.entity == entity }
+        /** Devuelve el catálogo para un tipo de entidad del backend, o null si es desconocido. */
+        fun forEntityOrNull(entity: String) = entries.firstOrNull { it.entity == entity }
     }
 }

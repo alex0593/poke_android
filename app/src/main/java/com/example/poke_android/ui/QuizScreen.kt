@@ -17,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
+import com.example.poke_android.data.GameRules
 import kotlinx.coroutines.delay
 
 @Composable
@@ -50,7 +51,9 @@ fun QuizScreen(s: UiState, vm: PokeViewModel) {
             return@Column
         }
         if (s.region != null)
-            Text("${s.stageTotal}/10 preguntas · ${s.stageCorrect} aciertos · Meta: 7/10")
+            Text(
+                "${s.stageTotal}/${GameRules.STAGE_QUESTIONS} preguntas · ${s.stageCorrect} aciertos · Meta: ${GameRules.STAGE_GOAL}/${GameRules.STAGE_QUESTIONS}"
+            )
         if (s.answered == null)
             Text(
                 "${seconds}s",

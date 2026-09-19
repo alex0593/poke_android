@@ -31,18 +31,20 @@ fun FavoritesScreen(s: UiState, refresh: () -> Unit, open: (Catalog, String) -> 
             if (s.favorites.isEmpty() && !s.busy)
                 item { Text("Todavía no tienes favoritos.") }
             items(s.favorites, key = { it.id }) { f ->
-                Card(
-                    onClick = { open(Catalog.forEntity(f.entity_type), f.entity_name) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(Modifier.padding(20.dp)) {
-                        Text(
-                            f.entity_name.replace('-', ' '),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(Catalog.forEntity(f.entity_type).title, color = red)
+                val catalog = Catalog.forEntityOrNull(f.entity_type)
+                if (catalog != null)
+                    Card(
+                        onClick = { open(catalog, f.entity_name) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(Modifier.padding(20.dp)) {
+                            Text(
+                                f.entity_name.replace('-', ' '),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Text(catalog.title, color = red)
+                        }
                     }
-                }
             }
         }
     }

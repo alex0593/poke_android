@@ -155,6 +155,12 @@ class RepositoryTest {
     }
 
     @Test
+    fun unknownFavoriteEntityTypeDoesNotMapToAnyCatalog() = runBlocking {
+        assertNull(Catalog.forEntityOrNull("legacy-type"))
+        assertNull(Catalog.forEntityOrNull(""))
+    }
+
+    @Test
     fun evolutionChainLoadsNestedSpecies() = runBlocking {
         respond(
             """{"id":1,"chain":{"species":{"name":"bulbasaur","url":"species/1"},"evolves_to":[{"species":{"name":"ivysaur","url":"species/2"},"evolves_to":[]}]}}"""

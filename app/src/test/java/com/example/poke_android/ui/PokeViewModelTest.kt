@@ -3,7 +3,7 @@ package com.example.poke_android.ui
 import com.example.poke_android.data.*
 import java.lang.reflect.Proxy
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.*
@@ -13,7 +13,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class PokeViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val events = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val events = Channel<Unit>(Channel.CONFLATED)
     private val searches = mutableListOf<String?>()
     private val answers = mutableListOf<StageAnswer>()
     private var failAnswer = false
@@ -102,7 +102,7 @@ class PokeViewModelTest {
             advanceUntilIdle()
             assertEquals("ash", vm.state.value.user)
             assertNotNull(vm.state.value.profile)
-            events.emit(Unit)
+            events.trySend(Unit)
             advanceUntilIdle()
             assertNull(vm.state.value.user)
             assertNull(vm.state.value.profile)
@@ -131,6 +131,19 @@ class PokeViewModelTest {
             assertTrue(vm.state.value.stageFinished)
             assertEquals(8, vm.state.value.stageCorrect)
             assertEquals("Pikachu", vm.state.value.answered)
+        }
+
+    @Test
+    fun unauthorizedEmittedBeforeSubscriptionStillLogsOut() =
+        runTest(dispatcher) {
+            session.save("ash", "token")
+            // El 401 llega antes de que exista el ViewModel: el canal confluado lo conserva.
+            assertTrue(events.trySend(Unit).isSuccess)
+            val vm = model()
+            advanceUntilIdle()
+            assertNull(vm.state.value.user)
+            assertNull(session.token)
+            assertEquals("La sesión caducó. Inicia sesión de nuevo.", vm.state.value.error)
         }
 
     @Test
