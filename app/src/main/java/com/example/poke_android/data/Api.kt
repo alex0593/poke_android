@@ -7,7 +7,7 @@ interface PokeApi {
     @GET("{catalog}/")
     suspend fun list(
         @Path("catalog") catalog: String,
-        @Query("limit") limit: Int = 25,
+        @Query("limit") limit: Int = 12,
         @Query("offset") offset: Int = 0,
         @Query("search") search: String? = null,
         @Query("types") types: List<String> = emptyList(),
@@ -22,7 +22,18 @@ interface PokeApi {
     @GET("{catalog}/{name}")
     suspend fun detail(@Path("catalog") catalog: String, @Path("name") name: String): Entry
 
+    @GET("evolutions/chain/{id}")
+    suspend fun evolutionChain(@Path("id") id: Int): EvolutionChain
+
     @GET("types/") suspend fun types(): List<String>
+
+    @GET("regions/")
+    suspend fun regions(
+        @Query("limit") limit: Int = 25,
+        @Query("offset") offset: Int = 0,
+    ): Page
+
+    @GET("regions/{name}") suspend fun region(@Path("name") name: String): RegionDetails
 
     @GET("pokemon/random") suspend fun random(): Entry
 

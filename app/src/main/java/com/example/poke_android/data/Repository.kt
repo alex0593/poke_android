@@ -23,9 +23,9 @@ fun createApi(
 ): PokeApi {
     val client =
         OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(90, TimeUnit.SECONDS)
-            .callTimeout(100, TimeUnit.SECONDS)
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .callTimeout(35, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
@@ -85,6 +85,8 @@ class Repository(val api: PokeApi) {
     suspend fun detail(catalog: Catalog, name: String): Entry =
         cache["${catalog.path}/$name"]
             ?: api.detail(catalog.path, name).also { cache["${catalog.path}/$name"] = it }
+
+    suspend fun evolutionChain(id: Int): EvolutionChain = api.evolutionChain(id)
 }
 
 fun Throwable.userMessage(): String =

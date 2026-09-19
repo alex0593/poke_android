@@ -127,6 +127,27 @@ data class Ranking(val leaders: List<Rank>, val current_user: Rank? = null, val 
 
 @Serializable data class AvatarUpdate(val username: String, val avatar_url: String)
 
+@Serializable data class EvolutionSpecies(val name: String, val url: String = "")
+
+@Serializable
+data class EvolutionNode(
+    val species: EvolutionSpecies,
+    val evolves_to: List<EvolutionNode> = emptyList(),
+)
+
+@Serializable
+data class EvolutionChain(val id: Int = 0, val chain: EvolutionNode)
+
+@Serializable data class NamedResource(val name: String, val url: String = "")
+
+@Serializable
+data class RegionDetails(
+    val id: Int = 0,
+    val name: String,
+    val locations: List<NamedResource> = emptyList(),
+    val pokemon_species: List<NamedResource> = emptyList(),
+)
+
 enum class Catalog(val path: String, val entity: String, val title: String) {
     POKEMON("pokemon", "pokemon", "Pokédex"),
     MOVES("moves", "move", "Movimientos"),

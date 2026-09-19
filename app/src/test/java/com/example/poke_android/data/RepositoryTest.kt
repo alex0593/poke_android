@@ -153,4 +153,15 @@ class RepositoryTest {
         assertEquals("potion", entry.key)
         assertNull(entry.sprites["front_default"])
     }
+
+    @Test
+    fun evolutionChainLoadsNestedSpecies() = runBlocking {
+        respond(
+            """{"id":1,"chain":{"species":{"name":"bulbasaur","url":"species/1"},"evolves_to":[{"species":{"name":"ivysaur","url":"species/2"},"evolves_to":[]}]}}"""
+        )
+        val chain = Repository(api).evolutionChain(1)
+        assertEquals("bulbasaur", chain.chain.species.name)
+        assertEquals("ivysaur", chain.chain.evolves_to.single().species.name)
+        assertEquals("/evolutions/chain/1", server.takeRequest().path)
+    }
 }

@@ -60,3 +60,28 @@
 - [ ] Distribuir una beta y recoger fallos antes de una publicación estable.
 
 **Criterio de cierre:** versión firmada reproducible, documentación de distribución completa y beta validada. El APK debug es para pruebas; no sustituye una versión de tienda.
+
+## 6. Estado de la iteración móvil — 18 de septiembre de 2026
+
+- [x] Separar pantallas, componentes comunes y tema para eliminar la duplicación de la UI.
+- [x] Recuperar la compilación Kotlin y conservar los flujos de navegación existentes.
+- [x] Añadir consulta de Pokémon al azar desde la pantalla principal.
+- [x] Mejorar el arranque: interfaz inmediata, tipos y favoritos en paralelo, primera página de 12 elementos y timeout de 35 segundos.
+- [x] Optimizar imágenes: sprites pequeños en tarjetas y trivia, caché de memoria y disco de 64 MB para Coil, e ilustraciones grandes solo en detalles.
+- [x] Consultar y mostrar cadenas evolutivas desde `GET /evolutions/chain/{id}`.
+- [x] Hacer navegables las especies relacionadas y las especies de una cadena evolutiva.
+- [x] Añadir prueba de contrato para la respuesta anidada de evoluciones.
+- [x] Ejecutar `assembleDebug`, `testDebugUnitTest` y `lintDebug` correctamente con JDK 17 y Android SDK 36.
+- [x] Instalar el APK debug en el dispositivo Android conectado (API 34).
+- [x] Ejecutar directamente las cuatro pruebas instrumentadas con `adb`; navegación, sesión cifrada y UI pasan.
+- [ ] Completar el recorrido visual manual contra Render y capturar una evidencia de pantalla.
+
+### Próxima entrega priorizada
+
+1. Añadir una sección de exploración de regiones, localidades y encuentros usando los endpoints públicos de Render.
+2. Añadir búsqueda global para movimientos, habilidades, objetos y bayas cuando el backend exponga búsqueda o un índice completo.
+3. Incorporar Paging 3, restauración de posición y persistencia Room para consultas recientes.
+4. Completar accesibilidad, traducciones de interfaz, orientación horizontal y pruebas en API 24, 35 y 36.
+5. Validar registro, favoritos, avatar, progreso regional y ranking con una cuenta de pruebas dedicada.
+
+**Estado al cierre de esta iteración:** la APK debug compila, las pruebas JVM, lint y las cuatro pruebas instrumentadas pasan; el APK está instalado en un dispositivo API 34 y la consulta de evoluciones ya está conectada. La exploración de regiones y la validación visual manual contra Render son los siguientes hitos verificables.

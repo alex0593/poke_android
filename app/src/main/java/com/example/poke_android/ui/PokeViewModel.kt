@@ -9,39 +9,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-data class UiState(
-    val ready: Boolean = false,
-    val user: String? = null,
-    val busy: Boolean = false,
-    val error: String? = null,
-    val catalog: Catalog = Catalog.POKEMON,
-    val entries: List<Entry> = emptyList(),
-    val next: Int? = null,
-    val search: String = "",
-    val selectedTypes: List<String> = emptyList(),
-    val types: List<String> = emptyList(),
-    val listBusy: Boolean = false,
-    val listError: String? = null,
-    val detail: Entry? = null,
-    val favorites: List<Favorite> = emptyList(),
-    val profile: Profile? = null,
-    val avatars: List<Avatar> = emptyList(),
-    val quiz: Quiz? = null,
-    val answered: String? = null,
-    val score: Int = 0,
-    val region: String? = null,
-    val stageType: String? = null,
-    val gameMessage: String? = null,
-    val ranking: Ranking? = null,
-    val progress: List<Region> = emptyList(),
-    val stageFinished: Boolean = false,
-    val stageCorrect: Int = 0,
-    val stageTotal: Int = 0,
-    val pendingAnswer: String? = null,
-    val saveFailed: Boolean = false,
-    val questionId: String = "",
-)
-
 class PokeViewModel(
     private val repo: Repository,
     private val session: Session,
@@ -73,19 +40,26 @@ class PokeViewModel(
             }
             mutable.update { it.copy(ready = true) }
             refresh()
-            try {
-                val types = api.types()
-                mutable.update { it.copy(types = types) }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-            }
-            if (session.token != null)
-                try {
-                    val favs = api.favorites()
-                    mutable.update { it.copy(favorites = favs) }
-                } catch (e: Exception) {
-                    if (e is CancellationException) throw e
-                }
+            launch { loadTypes() }
+            if (session.token != null) launch { loadInitialFavorites() }
+        }
+    }
+
+    private suspend fun loadTypes() {
+        try {
+            val types = api.types()
+            mutable.update { it.copy(types = types) }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+        }
+    }
+
+    private suspend fun loadInitialFavorites() {
+        try {
+            val favs = api.favorites()
+            mutable.update { it.copy(favorites = favs) }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
         }
     }
 
@@ -176,17 +150,46 @@ class PokeViewModel(
     fun detail(catalog: Catalog, name: String) {
         val request = "${catalog.path}/$name"
         detailRequest = request
-        mutable.update { it.copy(detail = null) }
+        mutable.update { it.copy(detail = null, evolution = null) }
         action {
             val e = repo.detail(catalog, name)
-            if (detailRequest == request) mutable.update { it.copy(detail = e) }
+            val chain =
+                if (catalog == Catalog.POKEMON && e.id != null)
+                    try {
+                        repo.evolutionChain(e.id)
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        null
+                    }
+                else null
+            if (detailRequest == request)
+                mutable.update { it.copy(detail = e, evolution = chain) }
         }
     }
 
     fun random() {
         action {
             val e = api.random()
-            mutable.update { it.copy(detail = e) }
+            mutable.update { it.copy(detail = e, randomPokemon = e) }
+        }
+    }
+
+    fun consumeRandom() {
+        mutable.update { it.copy(randomPokemon = null) }
+    }
+
+    fun loadWorldRegions() {
+        action {
+            val page = api.regions()
+            mutable.update { it.copy(worldRegions = page.results) }
+        }
+    }
+
+    fun loadWorldRegion(name: String) {
+        action {
+            val region = api.region(name)
+            mutable.update { it.copy(worldRegion = region) }
         }
     }
 
